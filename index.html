@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VEXOR PDF Generator</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <img class="logo-icon" src="Vexor logo.jpeg" alt="VEXOR logo" />
+        <div class="logo-text">
+          <span class="logo-main">VEXOR</span>
+          <span class="logo-sub">PDF Generator</span>
+        </div>
+      </div>
+      <nav class="nav-links">
+        <a href="#upload-section">Upload</a>
+        <a href="#features-section">Features</a>
+        <a href="#how-it-works">How it works</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-badge">✦ Free · Fast · No signup</div>
+    <h1 class="hero-title">Turn Images into<br /><span class="accent">Perfect PDFs</span></h1>
+    <p class="hero-subtitle">Drag, arrange, customize, and export — all in your browser. No uploads to any server.</p>
+    <div class="hero-dots">
+      <span></span><span></span><span></span>
+    </div>
+  </section>
+
+  <!-- Upload Section -->
+  <section class="section" id="upload-section">
+    <div class="container">
+
+      <!-- Drop Zone -->
+      <div class="dropzone" id="dropzone">
+        <div class="dropzone-inner">
+          <div class="drop-icon">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="4" y="4" width="40" height="40" rx="8" stroke="currentColor" stroke-width="2.5"/>
+              <path d="M24 14v14M17 21l7-7 7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M14 34h20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <p class="drop-title">Drop images here</p>
+          <p class="drop-sub">PNG, JPG, JPEG, WEBP, BMP · Multiple files supported</p>
+          <button class="btn-primary" id="browseBtn">Browse Files</button>
+          <input type="file" id="fileInput" accept="image/*" multiple hidden />
+        </div>
+      </div>
+
+      <!-- Image Preview Grid -->
+      <div class="preview-area" id="previewArea" style="display:none;">
+        <div class="preview-header">
+          <h2 class="preview-title">Your Images <span class="count-badge" id="imageCount">0</span></h2>
+          <div class="preview-actions">
+            <button class="btn-ghost" id="addMoreBtn">+ Add More</button>
+            <button class="btn-ghost danger" id="clearAllBtn">Clear All</button>
+          </div>
+        </div>
+        <p class="drag-hint">✦ Drag cards to reorder pages</p>
+        <div class="image-grid" id="imageGrid"></div>
+      </div>
+
+      <!-- Settings Panel -->
+      <div class="settings-panel" id="settingsPanel" style="display:none;">
+        <h2 class="settings-title">PDF Settings</h2>
+
+        <div class="settings-grid">
+
+          <div class="setting-group">
+            <label>Page Size</label>
+            <div class="select-wrapper">
+              <select id="pageSize">
+                <option value="a4">A4 (210 × 297 mm)</option>
+                <option value="letter">Letter (8.5 × 11 in)</option>
+                <option value="a3">A3 (297 × 420 mm)</option>
+                <option value="a5">A5 (148 × 210 mm)</option>
+                <option value="legal">Legal (8.5 × 14 in)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="setting-group">
+            <label>Orientation</label>
+            <div class="toggle-group" id="orientToggle">
+              <button class="toggle-btn active" data-val="portrait">Portrait</button>
+              <button class="toggle-btn" data-val="landscape">Landscape</button>
+            </div>
+          </div>
+
+          <div class="setting-group">
+            <label>Image Fit</label>
+            <div class="select-wrapper">
+              <select id="imageFit">
+                <option value="contain">Fit to page</option>
+                <option value="fill">Fill page</option>
+                <option value="original">Original size</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="setting-group">
+            <label>Margin (mm)</label>
+            <div class="range-row">
+              <input type="range" id="marginRange" min="0" max="40" value="10" />
+              <span class="range-val" id="marginVal">10</span>
+            </div>
+          </div>
+
+          <div class="setting-group">
+            <label>PDF Quality</label>
+            <div class="toggle-group" id="qualityToggle">
+              <button class="toggle-btn active" data-val="high">High</button>
+              <button class="toggle-btn" data-val="medium">Medium</button>
+              <button class="toggle-btn" data-val="low">Low</button>
+            </div>
+          </div>
+
+          <div class="setting-group">
+            <label>PDF Title (optional)</label>
+            <input type="text" class="text-input" id="pdfTitle" placeholder="My Document" />
+          </div>
+
+          <div class="setting-group">
+            <label>Author (optional)</label>
+            <input type="text" class="text-input" id="pdfAuthor" placeholder="VEXOR" />
+          </div>
+
+          <div class="setting-group">
+            <label>Background Color</label>
+            <div class="color-row">
+              <input type="color" id="bgColor" value="#ffffff" />
+              <span id="bgColorLabel">#ffffff</span>
+            </div>
+          </div>
+
+          <div class="setting-group full-width">
+            <label class="checkbox-label">
+              <input type="checkbox" id="addPageNumbers" />
+              <span class="checkbox-custom"></span>
+              Add page numbers
+            </label>
+          </div>
+
+          <div class="setting-group full-width">
+            <label class="checkbox-label">
+              <input type="checkbox" id="addWatermark" />
+              <span class="checkbox-custom"></span>
+              Add watermark text
+            </label>
+          </div>
+
+          <div class="setting-group full-width" id="watermarkGroup" style="display:none;">
+            <label>Watermark Text</label>
+            <input type="text" class="text-input" id="watermarkText" placeholder="CONFIDENTIAL" />
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Generate Button -->
+      <div class="generate-area" id="generateArea" style="display:none;">
+        <button class="btn-generate" id="generateBtn">
+          <span class="btn-icon">⬡</span>
+          Generate PDF
+        </button>
+        <p class="generate-note">Your images never leave your device.</p>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="progress-wrap" id="progressWrap" style="display:none;">
+        <div class="progress-label">Generating your PDF...</div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+
+      <!-- Download Area -->
+      <div class="download-area" id="downloadArea" style="display:none;">
+        <div class="success-icon">✓</div>
+        <h2>PDF Ready!</h2>
+        <p>Your PDF has been generated successfully.</p>
+        <div class="download-buttons">
+          <button class="btn-download" id="downloadBtn">⬇ Download PDF</button>
+          <button class="btn-ghost" id="newConversionBtn">Convert More</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="section features-section" id="features-section">
+    <div class="container">
+      <h2 class="section-title">Everything you need</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <span class="feature-icon">⟳</span>
+          <h3>Drag & Reorder</h3>
+          <p>Arrange your images in any order. Each image becomes one PDF page.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">◈</span>
+          <h3>Custom Page Sizes</h3>
+          <p>A4, Letter, A3, A5, Legal — pick the format that suits your use case.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">◇</span>
+          <h3>Margin Control</h3>
+          <p>Set exact margins so your images breathe perfectly on the page.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">◉</span>
+          <h3>Watermark</h3>
+          <p>Brand your PDFs or mark them confidential with custom watermark text.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">⬡</span>
+          <h3>Page Numbers</h3>
+          <p>Automatically number each page for professional multi-page documents.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">⊛</span>
+          <h3>100% Private</h3>
+          <p>All processing happens locally in your browser. Nothing is uploaded.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="section how-section" id="how-it-works">
+    <div class="container">
+      <h2 class="section-title">How it works</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">01</div>
+          <h3>Upload Images</h3>
+          <p>Drag & drop or browse to select your JPG, PNG, or WebP files.</p>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <h3>Customize</h3>
+          <p>Choose page size, orientation, margins, and other options.</p>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <h3>Generate & Download</h3>
+          <p>Click generate and instantly download your PDF. Done.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-logo">
+        <span>⬡</span> VEXOR PDF Generator
+      </div>
+      <p>Made with <a href="https://vexoritsolutions.site" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">vexor</a> · All processing is local · Your files stay private.</p>
+      <div class="footer-links">
+        <a href="terms.html">Terms & Conditions</a>
+        <a href="cookies.html">Cookies Policy</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="drag.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
